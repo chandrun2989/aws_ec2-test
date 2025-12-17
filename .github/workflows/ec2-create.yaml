@@ -87,6 +87,10 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.8.0
+      - name: run refresh
+        run: |
+          terraform refresh
+          
       - name: cleanup resource
         run: |
           terraform destroy -auto-approve
