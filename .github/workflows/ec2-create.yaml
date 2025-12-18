@@ -23,7 +23,7 @@ env:
   TF_VAR_aws_region: ap-south-1
   TF_VAR_key_name: my-test-key
   TF_VAR_allowed_ssh_cidr: ${{ secrets.ALLOWED_SSH_CIDR }}
-  TF_VAR_instance_type: t2.micro
+  TF_VAR_instance_type: t3.micro
   TF_STATE_BUCKET: "test-project-terraform-my-test" 
   TF_STATE_DYNAMODB_TABLE: "terraform-state-lock"
 
