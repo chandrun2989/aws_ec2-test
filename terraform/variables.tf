@@ -32,5 +32,5 @@ variable "CPU" {
   default = "t3.micro"
 }
 variable "AMI" {
-  default = "ami-053b0d53c279acc90"
+  default = "ami-00ca570c1b6d79f36"
 }
