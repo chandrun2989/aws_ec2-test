@@ -29,8 +29,8 @@ variable "allowed_ssh_cidr" {
   
 }
 variable "CPU" {
-
+  default = "t3.micro"
 }
 variable "AMI" {
-  
+  default = "ami-053b0d53c279acc90"
 }
