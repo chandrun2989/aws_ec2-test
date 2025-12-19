@@ -28,3 +28,9 @@ variable "allowed_ssh_cidr" {
   default     = "0.0.0.0/0"
   
 }
+variable "CPU" {
+
+}
+variable "AMI" {
+  
+}
