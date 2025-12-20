@@ -1,0 +1,25 @@
+---
+- name: Deploy Web Application
+  hosts: all
+  become: true # Execute tasks with root privileges (sudo)
+  tasks:
+    - name: Ensure dnf cache is updated
+      command: dnf clean all
+      changed_when: false
+
+    - name: Install Nginx web server
+      dnf:
+        name: nginx
+        state: present
+
+    - name: Deploy the application's index.html
+      copy:
+        src: ../src/index.html
+        dest: /usr/share/nginx/html/index.html
+
+    - name: Start and enable the Nginx service
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
