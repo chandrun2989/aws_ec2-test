@@ -5,6 +5,8 @@ resource "aws_instance" "servers" {
   for_each               = local.data
   tags = {
     Name = each.value.name
+    Project = each.value.Project
+
   }
 }
 data "aws_vpc" "default" {
