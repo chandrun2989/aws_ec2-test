@@ -11,9 +11,11 @@ locals {
   data = {
     ec2-1 = {
       name   = "compute-1"
+      Project = "my-web-app"
     }
     ec2-2 = {
       name   = "compute-2"
+      Project = "my-web-app"
     }
   }
 }
