@@ -36,9 +36,8 @@ Details
         * copy ../src/index.html -> /usr/share/nginx/html/index.html
             * src path is relative to the control machine; ../src/index.html means one level up from ansible/ (ensure that file exists).
         * Start and enable nginx service (service module).
-* Notes / improvements:
+* Notes:
     * Use the dnf module with update_cache: yes instead of a separate dnf clean all command to be more Ansible-native and idempotent.
     * Use handlers to restart/reload nginx only when the copied file changes (improves performance and correctness).
     * Confirm the src path exists from where you run ansible-playbook. If you run from repo root, src path is likely correct; if not, adjust or use playbook_dir variables.
     * Consider adding a file permission/owner for the copied index.html if required.
-    * The playbook assumes target systems are RHEL/Fedora-family (dnf + /usr/share/nginx/html + ec2-user).
