@@ -86,7 +86,11 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          file: ./terraform
+          command: test
+          args: |
+            --severity-threshold=high
+            --report
+            ./terraform
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
