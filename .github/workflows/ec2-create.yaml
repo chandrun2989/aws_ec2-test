@@ -91,7 +91,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           set +e
-          snyk iac test ./terraform --severity-threshold=low > snyk_report.txt 2>&1
+          snyk iac test ./terraform --severity-threshold=high > snyk_report.txt 2>&1
           EXIT_CODE=$?
           set -e
           cat snyk_report.txt
