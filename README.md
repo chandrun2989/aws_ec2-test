@@ -7,7 +7,7 @@ Details
     * private_key_file = ~/.ssh/ansible_key — default SSH private key path to connect to instances.
     * host_key_checking = False — disables SSH host key checking (convenient for CI, but less secure).
     * [inventory] enable_plugins = aws_ec2 — enable the aws_ec2 inventory plugin.
-* Notes / suggestions:
+* Notes:
     * Ensure the private key exists and has correct permissions (chmod 600).
     * Consider enabling host_key_checking in production or manage known_hosts securely.
     * This file lets you run ansible-playbook playbook.yml without passing -i every time.
