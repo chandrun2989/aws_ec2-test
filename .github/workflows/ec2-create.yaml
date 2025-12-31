@@ -120,21 +120,25 @@ jobs:
         run: |
           # If your secret was stored as plain string, use --query SecretString --output text
           # If stored as JSON like {"SNYK_TOKEN":"..."} then pipe through jq
-          SECRET_JSON=$(aws secretsmanager get-secret-value \
+          ACCESS_KEY=$(aws secretsmanager get-secret-value \
             --secret-id access_key \
             --query SecretString \
             --output text)
-          echo "secret string (raw): $SECRET_JSON" >&2   # for debug (do not print token in real runs)
-          # If the secret is JSON, extract the key:
-          if echo "$SECRET_JSON" | jq -e ."ssh-key" >/dev/null 2>&1; then
-            ACCESS_KEY=$(echo "$SECRET_JSON" | jq -r ."ssh-key")
-          else
-            # secret is raw token
-            ACCESS_KEY="$SECRET_JSON"
-          fi
+          # echo "secret string (raw): $SECRET_JSON" >&2   # for debug (do not print token in real runs)
+          # # If the secret is JSON, extract the key:
+          # if echo "$SECRET_JSON" | jq -e ."ssh-key" >/dev/null 2>&1; then
+          #   ACCESS_KEY=$(echo "$SECRET_JSON" | jq -r ."ssh-key")
+          # else
+          #   # secret is raw token
+          #   ACCESS_KEY="$SECRET_JSON"
+          # fi
           # export as step output (masking not strictly necessary but helpful)
           echo "::add-mask::$ACCESS_KEY"
-          echo "key=$ACCESS_KEY" >> "$GITHUB_OUTPUT"
+          {
+            echo "key<<EOF"
+            echo "$ACCESS_KEY"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Authenticate Snyk CLI
         env:
