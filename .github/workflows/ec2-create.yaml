@@ -80,15 +80,51 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::872154182572:role/GitHubActions-Terraform-Role
+          aws-region: ${{ env.AWS_REGION }}
+      
       - name: Set up Snyk CLI
         uses: snyk/actions/setup@master
         with:
           snyk-version: latest
+        
+      - name: Fetch Snyk token from Secrets Manager
+        id: fetch_snyk
+        run: |
+          # If your secret was stored as plain string, use --query SecretString --output text
+          # If stored as JSON like {"SNYK_TOKEN":"..."} then pipe through jq
+          SECRET_JSON=$(aws secretsmanager get-secret-value \
+            --secret-id action_secrets \
+            --query SecretString \
+            --output text)
+          echo "secret string (raw): $SECRET_JSON" >&2   # for debug (do not print token in real runs)
+          # If the secret is JSON, extract the key:
+          if echo "$SECRET_JSON" | jq -e .SNYK_TOKEN >/dev/null 2>&1; then
+            SNYK_TOKEN=$(echo "$SECRET_JSON" | jq -r .SNYK_TOKEN)
+          else
+            # secret is raw token
+            SNYK_TOKEN="$SECRET_JSON"
+          fi
+          # export as step output (masking not strictly necessary but helpful)
+          echo "::add-mask::$SNYK_TOKEN"
+          echo "::set-output name=token::$SNYK_TOKEN"
+
+      - name: Authenticate Snyk CLI
+        env:
+          SNYK_TOKEN: ${{ steps.fetch_snyk.outputs.token }}
+        run: |
+          npm install -g snyk@latest
+          snyk auth "$SNYK_TOKEN"
       
       - name: Run Snyk to check for configuration vulnerabilities
         env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+          SNYK_TOKEN: ${{ steps.fetch_snyk.outputs.token }}
         run: |
           set +e
           snyk iac test ./terraform --severity-threshold=high > snyk_report.txt 2>&1
@@ -106,14 +142,6 @@ jobs:
           if [ $EXIT_CODE -ne 0 ]; then
             exit $EXIT_CODE
           fi
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          role-to-assume: arn:aws:iam::872154182572:role/GitHubActions-Terraform-Role
-          aws-region: ${{ env.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
