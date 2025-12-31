@@ -166,44 +166,44 @@ jobs:
             exit $EXIT_CODE
           fi
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.8.0
+      # - name: Setup Terraform
+      #   uses: hashicorp/setup-terraform@v3
+      #   with:
+      #     terraform_version: 1.8.0
 
-      - name: Terraform Init
-        working-directory: ./terraform
-        run: |
-          terraform init \
-            -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
-            -backend-config="key=ec2-instance/terraform.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}"\
-            -backend-config="dynamodb_table=${{ env.TF_STATE_DYNAMODB_TABLE }}"
+      # - name: Terraform Init
+      #   working-directory: ./terraform
+      #   run: |
+      #     terraform init \
+      #       -backend-config="bucket=${{ env.TF_STATE_BUCKET }}" \
+      #       -backend-config="key=ec2-instance/terraform.tfstate" \
+      #       -backend-config="region=${{ env.AWS_REGION }}"\
+      #       -backend-config="dynamodb_table=${{ env.TF_STATE_DYNAMODB_TABLE }}"
 
-      - name: Terraform Validate
-        working-directory: ./terraform
-        run: terraform validate
+      # - name: Terraform Validate
+      #   working-directory: ./terraform
+      #   run: terraform validate
 
-      - name: Terraform Plan
-        if: ${{ !inputs.destroy }}
-        working-directory: ./terraform
-        run: terraform plan -input=false -out=tfplan
+      # - name: Terraform Plan
+      #   if: ${{ !inputs.destroy }}
+      #   working-directory: ./terraform
+      #   run: terraform plan -input=false -out=tfplan
 
-      - name: Terraform Apply
-        if: ${{ inputs.apply && !inputs.destroy }}
-        working-directory: ./terraform
-        run: terraform apply -input=false -auto-approve tfplan
+      # - name: Terraform Apply
+      #   if: ${{ inputs.apply && !inputs.destroy }}
+      #   working-directory: ./terraform
+      #   run: terraform apply -input=false -auto-approve tfplan
 
-      - name: Terraform Destroy
-        if: ${{ inputs.destroy }}
-        working-directory: ./terraform
-        run: terraform destroy -auto-approve
+      # - name: Terraform Destroy
+      #   if: ${{ inputs.destroy }}
+      #   working-directory: ./terraform
+      #   run: terraform destroy -auto-approve
 
-      - name: Show Outputs on Apply
-        if: ${{ inputs.apply && !inputs.destroy }}
-        working-directory: ./terraform
-        run: |
-          echo "### Terraform Outputs" >> $GITHUB_STEP_SUMMARY
-          terraform output >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "To SSH: ssh -i /path/to/your.pem ec2-user@$(terraform output -raw public_ip)" >> $GITHUB_STEP_SUMMARY
+      # - name: Show Outputs on Apply
+      #   if: ${{ inputs.apply && !inputs.destroy }}
+      #   working-directory: ./terraform
+      #   run: |
+      #     echo "### Terraform Outputs" >> $GITHUB_STEP_SUMMARY
+      #     terraform output >> $GITHUB_STEP_SUMMARY
+      #     echo "" >> $GITHUB_STEP_SUMMARY
+      #     echo "To SSH: ssh -i /path/to/your.pem ec2-user@$(terraform output -raw public_ip)" >> $GITHUB_STEP_SUMMARY
