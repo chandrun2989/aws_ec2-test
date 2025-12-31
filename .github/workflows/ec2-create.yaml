@@ -113,7 +113,7 @@ jobs:
           fi
           # export as step output (masking not strictly necessary but helpful)
           echo "::add-mask::$SNYK_TOKEN"
-          echo "::set-output name=token::$SNYK_TOKEN"
+          echo "token=$SNYK_TOKEN" >> "$GITHUB_OUTPUT"
 
       - name: Authenticate Snyk CLI
         env:
