@@ -133,7 +133,9 @@ jobs:
           #   ACCESS_KEY="$SECRET_JSON"
           # fi
           # export as step output (masking not strictly necessary but helpful)
-          echo "::add-mask::$ACCESS_KEY"
+          # echo "::add-mask::$ACCESS_KEY"
+          ACCESS_KEY_ESCAPED="${ACCESS_KEY//$'\n'/'%0A'}"
+          echo "::add-mask::$ACCESS_KEY_ESCAPED"
           {
             echo "key<<EOF"
             echo "$ACCESS_KEY"
