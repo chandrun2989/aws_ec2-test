@@ -103,7 +103,7 @@ jobs:
             --secret-id action_secrets \
             --query SecretString \
             --output text)
-          echo "secret string (raw): $SECRET_JSON" >&2   # for debug (do not print token in real runs)
+          # echo "secret string (raw): $SECRET_JSON" >&2   # for debug (do not print token in real runs)
           # If the secret is JSON, extract the key:
           if echo "$SECRET_JSON" | jq -e .SNYK_TOKEN >/dev/null 2>&1; then
             SNYK_TOKEN=$(echo "$SECRET_JSON" | jq -r .SNYK_TOKEN)
@@ -119,7 +119,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ steps.fetch_snyk.outputs.token }}
         run: |
-          npm install -g snyk@latest
+          # npm install -g snyk@latest
           snyk auth "$SNYK_TOKEN"
       
       - name: Run Snyk to check for configuration vulnerabilities
