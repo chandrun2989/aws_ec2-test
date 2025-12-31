@@ -124,10 +124,10 @@ jobs:
             --secret-id access_key \
             --query SecretString \
             --output text)
-          # echo "secret string (raw): $SECRET_JSON" >&2   # for debug (do not print token in real runs)
+          echo "secret string (raw): $SECRET_JSON" >&2   # for debug (do not print token in real runs)
           # If the secret is JSON, extract the key:
-          if echo "$SECRET_JSON" | jq -e .ssh-key >/dev/null 2>&1; then
-            ACCESS_KEY=$(echo "$SECRET_JSON" | jq -r .ssh-key)
+          if echo "$SECRET_JSON" | jq -e ."ssh-key" >/dev/null 2>&1; then
+            ACCESS_KEY=$(echo "$SECRET_JSON" | jq -r ."ssh-key")
           else
             # secret is raw token
             ACCESS_KEY="$SECRET_JSON"
@@ -139,6 +139,7 @@ jobs:
       - name: Authenticate Snyk CLI
         env:
           SNYK_TOKEN: ${{ steps.fetch_snyk.outputs.token }}
+          ACCESS_KEY: ${{ steps.fetch_ssh.outputs.key }}
         run: |
           # npm install -g snyk@latest
           snyk auth "$SNYK_TOKEN"
