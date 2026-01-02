@@ -1,0 +1,38 @@
+name: fetch snyk token and Authenticate the Run
+description: Fetch Snyk token from AWS Secrets Manager and authenticate Snyk CLI for vulnerability scanning.
+
+outputs:
+  token:
+    description: "The Snyk token fetched from Secrets Manager."
+    value: ${{ steps.fetch_snyk.outputs.token }}
+runs:
+  using: "composite"
+  steps:
+    - name: Fetch Snyk token from Secrets Manager
+      id: fetch_snyk
+      shell: bash
+      run: |
+        # If your secret was stored as plain string, use --query SecretString --output text
+        # If stored as JSON like {"SNYK_TOKEN":"..."} then pipe through jq
+        SECRET_JSON=$(aws secretsmanager get-secret-value \
+          --secret-id action_secrets \
+          --query SecretString \
+          --output text)
+        # echo "secret string (raw): $SECRET_JSON" >&2   # for debug (do not print token in real runs)
+        # If the secret is JSON, extract the key:
+        if echo "$SECRET_JSON" | jq -e .SNYK_TOKEN >/dev/null 2>&1; then
+          SNYK_TOKEN=$(echo "$SECRET_JSON" | jq -r .SNYK_TOKEN)
+        else
+          # secret is raw token
+          SNYK_TOKEN="$SECRET_JSON"
+        fi
+        # export as step output (masking not strictly necessary but helpful)
+        echo "::add-mask::$SNYK_TOKEN"
+        echo "token=$SNYK_TOKEN" >> "$GITHUB_OUTPUT"
+
+    - name: Authenticate Snyk CLI
+      env:
+        SNYK_TOKEN: ${{ steps.fetch_snyk.outputs.token }}
+      shell: bash
+      run: |
+        snyk auth "$SNYK_TOKEN"
