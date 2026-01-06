@@ -17,7 +17,6 @@ on:
       secret:
         description: "The AWS Secrets Manager secret ID where the Snyk token is stored."
         required: true
-        default: "test"
       key:
         description: "The key name in the secret JSON that contains the SSH private key. If the secret is stored as a plain string, use an empty string."
         required: false
