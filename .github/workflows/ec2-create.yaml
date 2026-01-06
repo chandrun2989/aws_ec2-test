@@ -116,7 +116,7 @@ jobs:
       - name: Run Snyk to check for configuration vulnerabilities
         if: ${{ inputs.secret == 'action_secrets' }}
         env:
-          SNYK_TOKEN: ${{ steps.fetch_snyk.outputs.token }}
+          SNYK_TOKEN: ${{ steps.fetch_ssh.outputs.token }}
           ACCESS_KEY: ${{ steps.fetch_ssh.outputs.key }}
         run: |
           set +e
