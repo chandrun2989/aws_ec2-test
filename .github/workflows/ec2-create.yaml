@@ -112,6 +112,9 @@ jobs:
         with:
           secret: ${{ inputs.secret }}
           key: ${{ inputs.key }}
+
+      - name: list environment variables
+        run: printenv
       
       - name: Run Snyk to check for configuration vulnerabilities
         if: ${{ inputs.secret == 'action_secrets' }}
