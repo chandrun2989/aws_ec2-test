@@ -5,7 +5,6 @@ inputs:
   secret:
     description: "The AWS Secrets Manager secret ID where the Snyk token is stored."
     required: false
-    default: "test"
 
 outputs:
   token:

@@ -106,7 +106,7 @@ jobs:
         id: fetch_ssh
         uses: ./.github/actions/secrets
         with:
-          secret: ${{ input.secret }}
+          secret: ${{ inputs.secret }}
       
       - name: Run Snyk to check for configuration vulnerabilities
         env:
