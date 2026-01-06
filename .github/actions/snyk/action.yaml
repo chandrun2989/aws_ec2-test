@@ -1,6 +1,12 @@
 name: fetch snyk token and Authenticate the Run
 description: Fetch Snyk token from AWS Secrets Manager and authenticate Snyk CLI for vulnerability scanning.
 
+inputs:
+  secret:
+    description: "The AWS Secrets Manager secret ID where the Snyk token is stored."
+    required: false
+    default: "test"
+
 outputs:
   token:
     description: "The Snyk token fetched from Secrets Manager."
@@ -15,7 +21,7 @@ runs:
         # If your secret was stored as plain string, use --query SecretString --output text
         # If stored as JSON like {"SNYK_TOKEN":"..."} then pipe through jq
         SECRET_JSON=$(aws secretsmanager get-secret-value \
-          --secret-id action_secrets \
+          --secret-id ${{ inputs.secret }} \
           --query SecretString \
           --output text)
         # echo "secret string (raw): $SECRET_JSON" >&2   # for debug (do not print token in real runs)

@@ -14,6 +14,10 @@ on:
         required: true
         type: boolean
         default: false
+      secret:
+        description: "The AWS Secrets Manager secret ID where the Snyk token is stored."
+        required: false
+        default: "test"
 
 permissions:
   id-token: write
@@ -101,6 +105,8 @@ jobs:
       - name: Fetch ssh key from Secrets Manager
         id: fetch_ssh
         uses: ./.github/actions/secrets
+        with:
+          secret: ${{ input.secret }}
       
       - name: Run Snyk to check for configuration vulnerabilities
         env:
