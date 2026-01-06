@@ -16,8 +16,11 @@ on:
         default: false
       secret:
         description: "The AWS Secrets Manager secret ID where the Snyk token is stored."
-        required: false
+        required: true
         default: "test"
+      key:
+        description: "The key name in the secret JSON that contains the SSH private key. If the secret is stored as a plain string, use an empty string."
+        required: false
 
 permissions:
   id-token: write
@@ -109,8 +112,10 @@ jobs:
         uses: ./.github/actions/secrets
         with:
           secret: ${{ inputs.secret }}
+          key: ${{ inputs.key }}
       
       - name: Run Snyk to check for configuration vulnerabilities
+        if: ${{ inputs.secret == 'action_secrets' }}
         env:
           SNYK_TOKEN: ${{ steps.fetch_snyk.outputs.token }}
           ACCESS_KEY: ${{ steps.fetch_ssh.outputs.key }}
