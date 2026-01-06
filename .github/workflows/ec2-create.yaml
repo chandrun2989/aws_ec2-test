@@ -114,6 +114,9 @@ jobs:
           key: ${{ inputs.key }}
 
       - name: list environment variables
+        env:
+          SNYK_TOKEN: ${{ steps.fetch_ssh.outputs.token }}
+          ACCESS_KEY: ${{ steps.fetch_ssh.outputs.key }}
         run: printenv
       
       - name: Run Snyk to check for configuration vulnerabilities
