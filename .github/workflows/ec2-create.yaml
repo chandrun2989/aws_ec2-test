@@ -98,11 +98,13 @@ jobs:
         with:
           snyk-version: latest
         
-      - name: Fetch Snyk token from Secrets Manager and authenticate
-        id: fetch_snyk
-        uses: ./.github/actions/snyk
+      # - name: Fetch Snyk token from Secrets Manager and authenticate
+      #   id: fetch_snyk
+      #   uses: ./.github/actions/snyk
+      #   with:
+      #     secret: ${{ inputs.secret }}
 
-      - name: Fetch ssh key from Secrets Manager
+      - name: Fetch secret from Secrets Manager
         id: fetch_ssh
         uses: ./.github/actions/secrets
         with:
