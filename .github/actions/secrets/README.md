@@ -1,4 +1,4 @@
-# Fetch SSH key from AWS Secrets Manager
+# Fetch secrets from AWS Secrets Manager
 
 This composite action fetches a secret (such as an SSH private key or API token) from AWS Secrets Manager. It supports both plain text secrets and JSON-formatted secrets.
 
