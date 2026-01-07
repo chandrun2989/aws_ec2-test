@@ -122,14 +122,14 @@ jobs:
 
       - name: list environment variables
         env:
-          SNYK_TOKEN: env.ACTION_SECRETS_SNYK_TOKEN
+          SNYK_TOKEN: ${{ env.ACTION_SECRETS_SNYK_TOKEN }}
           # ACCESS_KEY: ${{ steps.fetch_ssh.outputs.key }}
         run: printenv
       
       - name: Run Snyk to check for configuration vulnerabilities
         if: ${{ inputs.secret == 'action_secrets' }}
         env:
-          SNYK_TOKEN: env.ACTION_SECRETS_SNYK_TOKEN
+          SNYK_TOKEN: ${{ env.ACTION_SECRETS_SNYK_TOKEN }}
           # ACCESS_KEY: ${{ steps.fetch_ssh.outputs.key }}
         run: |
           set +e
