@@ -131,7 +131,7 @@ jobs:
         with:
           secret: "action_secrets"
           code_base: "terraform"
-          upload_artifacts: true
+          upload_artifacts: false
 
       
       # - name: Run Snyk to check for configuration vulnerabilities
