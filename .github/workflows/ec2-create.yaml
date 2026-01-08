@@ -105,14 +105,13 @@ jobs:
       #   with:
       #     secret: ${{ inputs.secret }}
 
-      - name: fetch Secrets Manager secret
-        id: get_aws_secret
-        uses: aws-actions/aws-secretsmanager-get-secrets@v2
-        with:
-          secret-ids: |
-            SNYK_TOKEN, action_secrets
-            NEXUS_USERNAME
-          parse-json-secrets: true
+      # - name: fetch Secrets Manager secret
+      #   id: get_aws_secret
+      #   uses: aws-actions/aws-secretsmanager-get-secrets@v2
+      #   with:
+      #     secret-ids: |
+      #       SNYK_TOKEN, action_secrets
+      #     parse-json-secrets: true
 
       # - name: Fetch secret from Secrets Manager
       #   id: fetch_ssh
@@ -121,11 +120,11 @@ jobs:
       #     secret: ${{ inputs.secret }}
       #     key: ${{ inputs.key }}
 
-      - name: list environment variables
-        env:
-          SNYK_TOKEN: ${{ env.ACTION_SECRETS_SNYK_TOKEN }}
-          # ACCESS_KEY: ${{ steps.fetch_ssh.outputs.key }}
-        run: printenv
+      # - name: list environment variables
+      #   env:
+      #     SNYK_TOKEN: ${{ env.ACTION_SECRETS_SNYK_TOKEN }}
+      #     # ACCESS_KEY: ${{ steps.fetch_ssh.outputs.key }}
+      #   run: printenv
 
       - name: Run Snyk to check for configuration vulnerabilities
         uses: chandrun2989/java-test-project/.github/actions/snyk@feature/snyk_integration
