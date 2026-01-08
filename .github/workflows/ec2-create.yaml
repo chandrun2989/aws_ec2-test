@@ -110,7 +110,8 @@ jobs:
         uses: aws-actions/aws-secretsmanager-get-secrets@v2
         with:
           secret-ids: |
-            action_secrets
+            SNYK_TOKEN, action_secrets
+            NEXUS_USERNAME
           parse-json-secrets: true
 
       # - name: Fetch secret from Secrets Manager
@@ -125,29 +126,37 @@ jobs:
           SNYK_TOKEN: ${{ env.ACTION_SECRETS_SNYK_TOKEN }}
           # ACCESS_KEY: ${{ steps.fetch_ssh.outputs.key }}
         run: printenv
-      
+
       - name: Run Snyk to check for configuration vulnerabilities
-        if: ${{ inputs.secret == 'action_secrets' }}
-        env:
-          SNYK_TOKEN: ${{ env.ACTION_SECRETS_SNYK_TOKEN }}
-          # ACCESS_KEY: ${{ steps.fetch_ssh.outputs.key }}
-        run: |
-          set +e
-          snyk iac test ./terraform --severity-threshold=high > snyk_report.txt 2>&1
-          EXIT_CODE=$?
-          set -e
-          cat snyk_report.txt
-          echo "### Snyk IaC Scan Results" >> $GITHUB_STEP_SUMMARY
-          echo "<details><summary>Click to expand scan results</summary>" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          cat snyk_report.txt >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "</details>" >> $GITHUB_STEP_SUMMARY
-          if [ $EXIT_CODE -ne 0 ]; then
-            exit $EXIT_CODE
-          fi
+        uses: chandrun2989/java-test-project/.github/actions/snyk/action@feature/snyk_integration
+        with:
+          secret: "action_secrets"
+          code_base: "terraform"
+          upload_artifacts: true
+
+      
+      # - name: Run Snyk to check for configuration vulnerabilities
+      #   if: ${{ inputs.secret == 'action_secrets' }}
+      #   env:
+      #     SNYK_TOKEN: ${{ env.ACTION_SECRETS_SNYK_TOKEN }}
+      #     # ACCESS_KEY: ${{ steps.fetch_ssh.outputs.key }}
+      #   run: |
+      #     set +e
+      #     snyk iac test ./terraform --severity-threshold=high > snyk_report.txt 2>&1
+      #     EXIT_CODE=$?
+      #     set -e
+      #     cat snyk_report.txt
+      #     echo "### Snyk IaC Scan Results" >> $GITHUB_STEP_SUMMARY
+      #     echo "<details><summary>Click to expand scan results</summary>" >> $GITHUB_STEP_SUMMARY
+      #     echo "" >> $GITHUB_STEP_SUMMARY
+      #     echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+      #     cat snyk_report.txt >> $GITHUB_STEP_SUMMARY
+      #     echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+      #     echo "" >> $GITHUB_STEP_SUMMARY
+      #     echo "</details>" >> $GITHUB_STEP_SUMMARY
+      #     if [ $EXIT_CODE -ne 0 ]; then
+      #       exit $EXIT_CODE
+      #     fi
 
       # - name: Setup Terraform
       #   uses: hashicorp/setup-terraform@v3
