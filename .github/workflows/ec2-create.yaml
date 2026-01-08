@@ -128,7 +128,7 @@ jobs:
         run: printenv
 
       - name: Run Snyk to check for configuration vulnerabilities
-        uses: chandrun2989/java-test-project/.github/actions/snyk/action@feature/snyk_integration
+        uses: chandrun2989/java-test-project/.github/actions/snyk@feature/snyk_integration
         with:
           secret: "action_secrets"
           code_base: "terraform"
