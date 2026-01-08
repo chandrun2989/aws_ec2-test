@@ -130,7 +130,7 @@ jobs:
         uses: chandrun2989/java-test-project/.github/actions/snyk@feature/snyk_new
         with:
           secret: "action_secrets"
-          path: '.'
+          path: './terraform'
           severity_threshold: 'low'
           upload_artifacts: false
 
