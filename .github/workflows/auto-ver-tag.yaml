@@ -1,0 +1,126 @@
+name: Auto version & on PR merge
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.base.ref }}
+      
+      - name: Set up git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: get bump type 
+        id: incver
+        uses: acions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+            const labels = (pr.labels || []).map(l => (l.name || '').toLowerCase());
+            const preferLables = () => {
+              if (labels.includes('semver: major')) return 'major';
+              if (labels.includes('semver: minor')) return 'minor';
+              if (labels.includes('semver: patch')) return 'patch';
+              return null;
+            };
+
+            let bump = preferLables();
+            if (!bump) {
+              const { owner, repo} = context.repo;
+              const commits = await github.rest.pulls.listCommits({
+                owner,
+                repo,
+                pull_number: pr.number, per_page: 100
+              });
+
+              let major = false, minor = false, patch = false;
+              for (const c of commits) {
+                const msg = c.commit.message; || '';
+                const first = msg.split('\n')[0];
+                
+                // Major if BREAKING CHANGE in body or "type!: ..." bang syntax
+                if (/BREAKING CHANGE/.test(msg) || /^[a-zA-Z]+![:(]/.test(first)) {
+                  major = true;
+                  continue; }
+                if (/^feat(\(.+\))?:/.test(first)) {
+                  minor = true;
+                  continue; }
+                if (/^fix(\(.+\))?:/.test(first)) {
+                  patch = true;
+                  continue; }
+              }
+              bump = major ? 'major' : (minor ? 'minor' : 'patch');
+            }
+            core.setOutput('bump', bump);
+
+      - name: Get the latest tag
+        id: prev
+        shell: bash
+        run: |
+          set -e
+          # find last tag that looks like v<semver>; default  to v0.0.0
+          TAG=$(git describe --tags --match "v[0-9]*" --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Compute next version
+        id: semver
+        shell: bash
+        run: |
+          set -e
+          CUR= "${{ steps.prev.outputs.tag }}"
+          BUMP="${{ steps.incver.outputs.bump }}"
+          V="${CUR#v}"  # strip leading 'v'
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$V"
+          MA=${MA: -0}; MI=${MI:-0}; PA=${PA:-0}
+          case "$BUMP" in
+            major) MA=$((MA + 1)); MI=0; PA=0 ;;
+            minor) MI=$((MI + 1)); PA=0 ;;
+            patch) PA=$((PA + 1)) ;;
+          esac
+          NEW="v${MA}.${MI}.${PA}"
+          echo "new=$NEW" >> $GITHUB_OUTPUT
+          echo "bump=$BUMP" >> $GITHUB_OUTPUT
+          echo "Computed new version: $NEW (from $CUR, bump: $BUMP)"
+
+      # optional: Persist the version to a generic version file and push to base branch
+      # If repo is language-specific, replace this with updating package.json, setup.py, etc.
+      - name: write version file and commits
+        shell: bash
+        continue-on-error: true # avoid failing if branch protections block pushes
+        env:
+          NEW_VERSION: ${{ steps.semver.outputs.new }}
+        run: |
+          echo "${NEW#v}" > VERSION
+          if git diff --quiet VERSION; then
+            echo "Version unchanged."
+          else
+          git add VERSION
+          git commit -m "chore(release): ${New} [skip ci]"
+          git push origin HEAD:${{ github.event.pull_request.base.ref }}
+          fi
+      
+      - name: Create Git tag and push
+        shell: bash
+        env:
+          NEW_VERSION: ${{ steps.semver.outputs.new }}
+        run: |
+          # ensure tag does not already exist
+          if git rev-parse "$NEW" >/dev/null 2>&1; then
+            echo "Tag $NEW already exists, skipping tag creation."
+          else
+          git tag "$NEW" -m "Release $NEW"
+          git push origin "$NEW"
+          fi
