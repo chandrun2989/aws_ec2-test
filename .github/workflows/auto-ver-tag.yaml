@@ -40,7 +40,7 @@ jobs:
             let bump = preferLables();
             if (!bump) {
               const { owner, repo} = context.repo;
-              const commits = await github.rest.pulls.listCommits({
+              const { data: commits } = await github.rest.pulls.listCommits({
                 owner,
                 repo,
                 pull_number: pr.number, per_page: 100
@@ -48,7 +48,7 @@ jobs:
 
               let major = false, minor = false, patch = false;
               for (const c of commits) {
-                const msg = c.commit.message; || '';
+                const msg = c.commit.message || '';
                 const first = msg.split('\n')[0];
                 
                 // Major if BREAKING CHANGE in body or "type!: ..." bang syntax
@@ -80,11 +80,11 @@ jobs:
         shell: bash
         run: |
           set -e
-          CUR= "${{ steps.prev.outputs.tag }}"
+          CUR="${{ steps.prev.outputs.tag }}"
           BUMP="${{ steps.incver.outputs.bump }}"
           V="${CUR#v}"  # strip leading 'v'
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$V"
-          MA=${MA: -0}; MI=${MI:-0}; PA=${PA:-0}
+          IFS='.' read -r MA MI PA <<< "$V"
+          MA=${MA:-0}; MI=${MI:-0}; PA=${PA:-0}
           case "$BUMP" in
             major) MA=$((MA + 1)); MI=0; PA=0 ;;
             minor) MI=$((MI + 1)); PA=0 ;;
