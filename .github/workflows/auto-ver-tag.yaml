@@ -1,7 +1,7 @@
 name: Auto version & on PR merge
 on:
   pull_request:
-    types: [closed]
+    types: [closed, synchronize]
 
 permissions:
   contents: write
