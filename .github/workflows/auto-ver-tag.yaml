@@ -1,5 +1,16 @@
 name: Auto version & on PR merge
 on:
+  workflow_call:
+    inputs:
+      target_branch:
+        description: "Branch to push tags/commits to. Defaults to PR base ref."
+        required: false
+        type: string
+      version_file:
+        description: "Path to the version file"
+        required: false
+        default: "VERSION"
+        type: string
   pull_request:
     types: [closed, synchronize]
 
@@ -16,7 +27,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.base.ref }}
+          ref: ${{ inputs.target_branch || github.event.pull_request.base.ref }}
       
       - name: Set up git user
         run: |
@@ -30,6 +41,10 @@ jobs:
         with:
           script: |
             const pr = context.payload.pull_request;
+            if (!pr) {
+              core.setFailed("No pull request context found. This workflow requires a pull_request event payload.");
+              return;
+            }
             core.info(`Starting version bump check for PR #${pr.number}`);
             const labels = (pr.labels || []).map(l => (l.name || '').toLowerCase());
             core.info(`PR Labels: ${JSON.stringify(labels)}`);
@@ -118,17 +133,19 @@ jobs:
         continue-on-error: true # avoid failing if branch protections block pushes
         env:
           NEW: ${{ steps.semver.outputs.new }}
+          VER_FILE: ${{ inputs.version_file || 'VERSION' }}
+          TARGET_BRANCH: ${{ inputs.target_branch || github.event.pull_request.base.ref }}
         run: |
-          echo "Updating VERSION file to $NEW"
-          echo "${NEW}" > VERSION
-          if git diff --quiet VERSION; then
+          echo "Updating $VER_FILE file to $NEW"
+          echo "${NEW}" > "$VER_FILE"
+          if git diff --quiet "$VER_FILE"; then
             echo "Version unchanged."
           else
-          echo "Commiting VERSION file...."
-          git add VERSION
+          echo "Committing $VER_FILE file...."
+          git add "$VER_FILE"
           git commit -m "chore(release): ${NEW} [skip ci]"
-          echo "Pushing to ${{ github.event.pull_request.base.ref }}..."
-          git push origin HEAD:${{ github.event.pull_request.base.ref }}
+          echo "Pushing to $TARGET_BRANCH..."
+          git push origin HEAD:"$TARGET_BRANCH"
           fi
       
       - name: Create Git tag and push
