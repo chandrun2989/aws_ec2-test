@@ -40,7 +40,7 @@ jobs:
               return null;
             };
 
-            let bump = preferLables();
+            let bump = preferLabels();
             if (bump) {
               core.info(`Bump type determined from labels: ${bump}`);
             }
@@ -126,7 +126,7 @@ jobs:
           else
           echo "Commiting VERSION file...."
           git add VERSION
-          git commit -m "chore(release): ${New} [skip ci]"
+          git commit -m "chore(release): ${NEW} [skip ci]"
           echo "Pushing to ${{ github.event.pull_request.base.ref }}..."
           git push origin HEAD:${{ github.event.pull_request.base.ref }}
           fi
