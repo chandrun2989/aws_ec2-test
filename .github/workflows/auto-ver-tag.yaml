@@ -20,6 +20,7 @@ jobs:
       
       - name: Set up git user
         run: |
+          echo "Configuring git user..."
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
@@ -29,7 +30,9 @@ jobs:
         with:
           script: |
             const pr = context.payload.pull_request;
+            core.info(`Starting version bump check for PR #${pr.number}`);
             const labels = (pr.labels || []).map(l => (l.name || '').toLowerCase());
+            core.info(`PR Labels: ${JSON.stringify(labels)}`);
             const preferLables = () => {
               if (labels.includes('semver: major')) return 'major';
               if (labels.includes('semver: minor')) return 'minor';
@@ -38,13 +41,18 @@ jobs:
             };
 
             let bump = preferLables();
+            if (bump) {
+              core.info(`Bump type determined from labels: ${bump}`);
+            }
             if (!bump) {
+              core.info(`No semver label found. Analyzing commits...`);
               const { owner, repo} = context.repo;
               const { data: commits } = await github.rest.pulls.listCommits({
                 owner,
                 repo,
                 pull_number: pr.number, per_page: 100
               });
+              core.info(`Fetched ${commits.length} commits.`);
 
               let major = false, minor = false, patch = false;
               for (const c of commits) {
@@ -53,6 +61,7 @@ jobs:
                 
                 // Major if BREAKING CHANGE in body or "type!: ..." bang syntax
                 if (/BREAKING CHANGE/.test(msg) || /^[a-zA-Z]+![:(]/.test(first)) {
+                  core.info(`Found breakinng change in commit: ${first}`);
                   major = true;
                   continue; }
                 if (/^feat(\(.+\))?:/.test(first)) {
@@ -63,7 +72,9 @@ jobs:
                   continue; }
               }
               bump = major ? 'major' : (minor ? 'minor' : 'patch');
+              core.info(`Bump type determined from commits: ${bump}`);
             }
+            core.info(`Final bump type: ${bump}`);
             core.setOutput('bump', bump);
 
       - name: Get the latest tag
@@ -71,8 +82,10 @@ jobs:
         shell: bash
         run: |
           set -e
+          echo "Fetching latest tag..."
           # find last tag that looks like v<semver>; default  to v0.0.0
           TAG=$(git describe --tags --match "v[0-9]*" --abbrev=0 2>/dev/null || echo "v0.0.0")
+          echo "Latest tag found: $TAG"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Compute next version
@@ -82,9 +95,12 @@ jobs:
           set -e
           CUR="${{ steps.prev.outputs.tag }}"
           BUMP="${{ steps.incver.outputs.bump }}"
+          echo "Current version: $CUR"
+          echo "Bump type: $BUMP"
           V="${CUR#v}"  # strip leading 'v'
           IFS='.' read -r MA MI PA <<< "$V"
           MA=${MA:-0}; MI=${MI:-0}; PA=${PA:-0}
+          echo "Parsed version - Major: $MA, Minor: $MI, Patch: $PA"
           case "$BUMP" in
             major) MA=$((MA + 1)); MI=0; PA=0 ;;
             minor) MI=$((MI + 1)); PA=0 ;;
@@ -103,12 +119,15 @@ jobs:
         env:
           NEW: ${{ steps.semver.outputs.new }}
         run: |
+          echo "Updating VERSION file to $NEW#v"
           echo "${NEW#v}" > VERSION
           if git diff --quiet VERSION; then
             echo "Version unchanged."
           else
+          echo "Commiting VERSION file...."
           git add VERSION
           git commit -m "chore(release): ${New} [skip ci]"
+          echo "Pushing to ${{ github.event.pull_request.base.ref }}..."
           git push origin HEAD:${{ github.event.pull_request.base.ref }}
           fi
       
@@ -118,9 +137,11 @@ jobs:
           NEW: ${{ steps.semver.outputs.new }}
         run: |
           # ensure tag does not already exist
+          echo "Checking if tag $NEW already exists..."
           if git rev-parse "$NEW" >/dev/null 2>&1; then
             echo "Tag $NEW already exists, skipping tag creation."
           else
+          echo "Creating and pushing tag $NEW..."
           git tag "$NEW" -m "Release $NEW"
           git push origin "$NEW"
           fi
