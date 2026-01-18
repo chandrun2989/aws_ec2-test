@@ -101,7 +101,7 @@ jobs:
         shell: bash
         continue-on-error: true # avoid failing if branch protections block pushes
         env:
-          NEW_VERSION: ${{ steps.semver.outputs.new }}
+          NEW: ${{ steps.semver.outputs.new }}
         run: |
           echo "${NEW#v}" > VERSION
           if git diff --quiet VERSION; then
@@ -115,7 +115,7 @@ jobs:
       - name: Create Git tag and push
         shell: bash
         env:
-          NEW_VERSION: ${{ steps.semver.outputs.new }}
+          NEW: ${{ steps.semver.outputs.new }}
         run: |
           # ensure tag does not already exist
           if git rev-parse "$NEW" >/dev/null 2>&1; then
