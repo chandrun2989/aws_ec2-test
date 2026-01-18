@@ -33,10 +33,10 @@ jobs:
             core.info(`Starting version bump check for PR #${pr.number}`);
             const labels = (pr.labels || []).map(l => (l.name || '').toLowerCase());
             core.info(`PR Labels: ${JSON.stringify(labels)}`);
-            const preferLables = () => {
-              if (labels.includes('semver: major')) return 'major';
-              if (labels.includes('semver: minor')) return 'minor';
-              if (labels.includes('semver: patch')) return 'patch';
+            const preferLabels = () => {
+              if (labels.includes('semver: major') || labels.includes('major')) return 'major';
+              if (labels.includes('semver: minor') || labels.includes('minor')) return 'minor';
+              if (labels.includes('semver: patch') || labels.includes('patch')) return 'patch';
               return null;
             };
 
@@ -61,7 +61,7 @@ jobs:
                 
                 // Major if BREAKING CHANGE in body or "type!: ..." bang syntax
                 if (/BREAKING CHANGE/.test(msg) || /^[a-zA-Z]+![:(]/.test(first)) {
-                  core.info(`Found breakinng change in commit: ${first}`);
+                  core.info(`Found breaking change in commit: ${first}`);
                   major = true;
                   continue; }
                 if (/^feat(\(.+\))?:/.test(first)) {
