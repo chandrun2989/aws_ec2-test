@@ -119,8 +119,8 @@ jobs:
         env:
           NEW: ${{ steps.semver.outputs.new }}
         run: |
-          echo "Updating VERSION file to $NEW#v"
-          echo "${NEW#v}" > VERSION
+          echo "Updating VERSION file to $NEW"
+          echo "${NEW}" > VERSION
           if git diff --quiet VERSION; then
             echo "Version unchanged."
           else
