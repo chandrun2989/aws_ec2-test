@@ -11,6 +11,11 @@ on:
         required: false
         default: "VERSION"
         type: string
+      changelog_file:
+        description: "Path to the changelog file"
+        required: false
+        default: "CHANGELOG.md"
+        type: string
   pull_request:
     types: [closed, synchronize]
 
@@ -126,6 +131,30 @@ jobs:
           echo "bump=$BUMP" >> $GITHUB_OUTPUT
           echo "Computed new version: $NEW (from $CUR, bump: $BUMP)"
 
+      - name: Generate Changelog
+        shell: bash
+        env:
+          PREV: ${{ steps.prev.outputs.tag }}
+          NEW: ${{ steps.semver.outputs.new }}
+          CHANGELOG_FILE: ${{ inputs.changelog_file || 'CHANGELOG.md' }}
+        run: |
+          echo "Generating changelog..."
+          echo "## $NEW ($(date +'%Y-%m-%d'))" > new_changelog_entry.md
+          echo "" >> new_changelog_entry.md
+          
+          if git rev-parse "$PREV" >/dev/null 2>&1; then
+            git log --pretty=format:"- %s (%h)" "$PREV..HEAD" >> new_changelog_entry.md
+          else
+            git log --pretty=format:"- %s (%h)" >> new_changelog_entry.md
+          fi
+          echo "" >> new_changelog_entry.md
+          echo "" >> new_changelog_entry.md
+          
+          # Prepend to existing changelog or create new
+          touch "$CHANGELOG_FILE"
+          cat "$CHANGELOG_FILE" >> new_changelog_entry.md
+          mv new_changelog_entry.md "$CHANGELOG_FILE"
+
       # optional: Persist the version to a generic version file and push to base branch
       # If repo is language-specific, replace this with updating package.json, setup.py, etc.
       - name: write version file and commits
@@ -134,15 +163,18 @@ jobs:
         env:
           NEW: ${{ steps.semver.outputs.new }}
           VER_FILE: ${{ inputs.version_file || 'VERSION' }}
+          CHANGELOG_FILE: ${{ inputs.changelog_file || 'CHANGELOG.md' }}
           TARGET_BRANCH: ${{ inputs.target_branch || github.event.pull_request.base.ref }}
         run: |
           echo "Updating $VER_FILE file to $NEW"
           echo "${NEW}" > "$VER_FILE"
-          if git diff --quiet "$VER_FILE"; then
-            echo "Version unchanged."
+          # Stage both files
+          git add "$VER_FILE" "$CHANGELOG_FILE"
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
           else
-          echo "Committing $VER_FILE file...."
-          git add "$VER_FILE"
+          echo "Committing version and changelog files..."
           git commit -m "chore(release): ${NEW} [skip ci]"
           echo "Pushing to $TARGET_BRANCH..."
           git push origin HEAD:"$TARGET_BRANCH"
