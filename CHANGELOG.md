@@ -1,3 +1,18 @@
+## v1.2.1  (PR #14) (2026-01-20)
+
+**Title of the PR**
+
+**PR description**
+1st line
+
+2nd line
+
+3rd line
+
+**Commits in this PR**
+- Merge pull request (801a7cd)
+- added few more statements (b69577c)
+
 ##  (PR #13) v1.2.0 (2026-01-20)
 
 PR DETAILS  added to the CHANGELOG file
