@@ -137,9 +137,16 @@ jobs:
           PREV: ${{ steps.prev.outputs.tag }}
           NEW: ${{ steps.semver.outputs.new }}
           CHANGELOG_FILE: ${{ inputs.changelog_file || 'CHANGELOG.md' }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           echo "Generating changelog..."
-          echo "## $NEW ($(date +'%Y-%m-%d'))" > new_changelog_entry.md
+          echo "##  (PR #$PR_NUMBER) $NEW ($(date +'%Y-%m-%d'))" > new_changelog_entry.md
+          echo "" >> new_changelog_entry.md
+          echo "$PR_TITLE" >> new_changelog_entry.md
+          echo "" >> new_changelog_entry.md
+          echo "$PR_BODY" >> new_changelog_entry.md
           echo "" >> new_changelog_entry.md
           
           if git rev-parse "$PREV" >/dev/null 2>&1; then
