@@ -1,3 +1,15 @@
+## v1.2.2  (PR #15) (2026-01-20)
+
+**New title**
+
+**PR description**
+
+small change on the pr
+
+**Commits in this PR**
+- Merge pull request #15 (748aa3b)
+- added few more statements (c6582b9)
+
 ## v1.2.1  (PR #14) (2026-01-20)
 
 **Title of the PR**
