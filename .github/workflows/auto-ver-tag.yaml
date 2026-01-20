@@ -142,12 +142,14 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
           echo "Generating changelog..."
-          echo "##  (PR #$PR_NUMBER) $NEW ($(date +'%Y-%m-%d'))" > new_changelog_entry.md
+          echo "## $NEW  (PR #$PR_NUMBER) ($(date +'%Y-%m-%d'))" > new_changelog_entry.md
           echo "" >> new_changelog_entry.md
-          echo "$PR_TITLE" >> new_changelog_entry.md
+          echo "**$PR_TITLE**" >> new_changelog_entry.md
           echo "" >> new_changelog_entry.md
+          echo "**PR description**" >> new_changelog_entry.md
           echo "$PR_BODY" >> new_changelog_entry.md
           echo "" >> new_changelog_entry.md
+          echo "**Commits in this PR**" >> new_changelog_entry.md
           
           if git rev-parse "$PREV" >/dev/null 2>&1; then
             git log --pretty=format:"- %s (%h)" "$PREV..HEAD" >> new_changelog_entry.md
