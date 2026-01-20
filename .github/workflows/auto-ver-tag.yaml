@@ -147,6 +147,7 @@ jobs:
           echo "**$PR_TITLE**" >> new_changelog_entry.md
           echo "" >> new_changelog_entry.md
           echo "**PR description**" >> new_changelog_entry.md
+          echo "" >> new_changelog_entry.md
           echo "$PR_BODY" >> new_changelog_entry.md
           echo "" >> new_changelog_entry.md
           echo "**Commits in this PR**" >> new_changelog_entry.md
