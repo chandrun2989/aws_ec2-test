@@ -1,3 +1,17 @@
+## v1.2.3  (PR #16) (2026-01-21)
+
+**feat! updated title condition**
+
+**PR description**
+
+adde one more condition of the title.
+
+Labels is not mandatory.
+
+**Commits in this PR**
+- Merge pull request #16 (419098a)
+- feat! updated title condition (c0f402d)
+
 ## v1.2.2  (PR #15) (2026-01-20)
 
 **New title**
