@@ -1,3 +1,15 @@
+## v1.2.4  (PR #17) (2026-01-21)
+
+**feat! added  a new feature.**
+
+**PR description**
+
+labels addition is not mandatory.
+
+**Commits in this PR**
+- Merge pull request #17 (7c2d505)
+- feat! updated title condition (ad951bb)
+
 ## v1.2.3  (PR #16) (2026-01-21)
 
 **feat! updated title condition**
