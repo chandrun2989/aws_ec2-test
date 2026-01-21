@@ -1,3 +1,15 @@
+## v2.0.1  (PR #19) (2026-01-21)
+
+**fix: pr title check workflow is added**
+
+**PR description**
+
+test
+
+**Commits in this PR**
+- Merge pull request #19 from chandrun2989/feature/test-tag (67883b2)
+- pr title check workflow is added (e5c3ea6)
+
 ## v2.0.0  (PR #18) (2026-01-21)
 
 **feat!: added a new feature.**
