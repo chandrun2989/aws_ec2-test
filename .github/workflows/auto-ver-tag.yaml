@@ -66,11 +66,16 @@ jobs:
             }
             if (!bump) {
               const title = pr.title || '';
+              // Major: explicit BREAKING CHANGE in title/body OR "type![: ]" syntax (accepts '!:' or '! ')
               if (/BREAKING CHANGE/.test(title) || /^[a-zA-Z]+(\([^)]+\))?!:/.test(title)) {
                 bump = 'major';
-              } else if (/^feat(\([^)]+\))?:/.test(title)) {
+              }
+              // Minor: feat type (accepts "feat:" or "feat " or "feat(scope):") 
+              else if (/^feat(\([^)]+\))?:/.test(title)) {
                 bump = 'minor';
-              } else if (/^fix(\([^)]+\))?:/.test(title)) {
+              }
+              // Patch: fix type 
+              else if (/^fix(\([^)]+\))?:/.test(title)) {
                 bump = 'patch';
               }
               if (bump) core.info(`Bump type determined from PR title: ${bump}`);
