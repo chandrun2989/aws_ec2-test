@@ -65,7 +65,18 @@ jobs:
               core.info(`Bump type determined from labels: ${bump}`);
             }
             if (!bump) {
-              core.info(`No semver label found. Analyzing commits...`);
+              const title = pr.title || '';
+              if (/BREAKING CHANGE/.test(title) || /^[a-zA-Z]+(\(.+\))?!:/.test(title)) {
+                bump = 'major';
+              } else if (/^feat(\(.+\))?:/.test(title)) {
+                bump = 'major';
+              } else if (/^fix(\(.+\))?:/.test(title)) {
+                bump = 'minor';
+              }
+              if (bump) core.info(`Bump type determined from PR title: ${bump}`);
+            }
+            if (!bump) {
+              core.info(`No semver label or title match found. Analyzing commits...`);
               const { owner, repo} = context.repo;
               const { data: commits } = await github.rest.pulls.listCommits({
                 owner,
