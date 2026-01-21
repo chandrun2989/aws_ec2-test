@@ -1,3 +1,17 @@
+## v2.0.0  (PR #18) (2026-01-21)
+
+**feat!: added a new feature.**
+
+**PR description**
+
+labels are not mandatory,
+
+bump will be picked up by PR title.
+
+**Commits in this PR**
+- Merge pull request #18 (161ba22)
+- feat added new feature (2ffc732)
+
 ## v1.2.4  (PR #17) (2026-01-21)
 
 **feat! added  a new feature.**
