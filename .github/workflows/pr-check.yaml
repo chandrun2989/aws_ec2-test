@@ -16,6 +16,7 @@ jobs:
         with:
           script: |
             const title = context.payload.pull_request.title;
+            const body = context.payload.pull_request.body;
             // Regex enforces: type(scope)!: description
             // Allowed types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
             const regex = /^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9-._]+\))?!?: .+$/;
@@ -29,6 +30,13 @@ jobs:
                 `  feat: add login page\n` +
                 `  fix(api): resolve timeout issue\n` +
                 `  feat!: drop support for v1`
+              );
+             }
+              const jiraRegex = /[a-zA-Z]{4}-\d{4}/;
+              if (!jiraRegex.test(title) && !jiraRegex.test(body)) {
+                core.setFailed(
+                  "PR Title or body must contain a valid JIRA number in the format ABCD-1234.\n" +
+                  "Please add the JIRA number to either the title or body of the pull request."
               );
             } else {
               core.info("PR Title is valid.");
