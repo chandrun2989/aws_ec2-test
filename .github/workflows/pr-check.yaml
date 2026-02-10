@@ -31,6 +31,17 @@ jobs:
                 `  fix(api): resolve timeout issue\n` +
                 `  feat!: drop support for v1`
               );
+
+             }
+            
+            const checklistRegex = /- \[([xX])?\]\s/;
+            const checklistMatches = body.matchAll(checklistRegex);
+            let checkedCount = 0;
+            for (const match of checklistMatches) {
+              if (match[1] && (match[1].toLowerCase() === 'x')) {
+                checkedCount++;
+              }
+            } 
              }
               const jiraRegex = /[a-zA-Z]{4}-\d{4}/;
               if (!jiraRegex.test(title) && !jiraRegex.test(body)) {
@@ -40,4 +51,12 @@ jobs:
               );
             } else {
               core.info("PR Title is valid.");
+            }
+            if (checkedCount === 0) {
+              core.setFailed(
+                "At least one checklist item must be selected in the PR body.\n" +
+                "Please check at least one box in the checklist."
+              );
+            } else {
+              core.info("At least one checklist item is selected.");
             }
